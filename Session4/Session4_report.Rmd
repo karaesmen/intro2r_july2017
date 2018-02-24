@@ -1,0 +1,349 @@
+---
+title: "Session 4 - Data Visalization 1"
+author: "R Introduction Workshop"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+      html_document:   
+       toc: true
+       toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, message=F, eval=T, fig.align = "center")
+library(tidyverse)
+library(lattice)
+library(plotly)
+
+### IMPORTANT !!! ###
+# change the path to your directory
+setwd("~/Google Drive/RLadiesColumbus/RIntro/Sessions/Session 3/")
+```
+
+# Visualization with R
+
+- R has a variety of visualization tools.   
+- These tools can be general and applied to any field or data.   
+- Some packages can also be very field specific.  
+
+**There are 3 main families of visualization functions:**    
+
+- Base R ` plot() ` -- See `?plot`   
+- Lattice -- See `?lattice::Lattice`   
+- ggplot2 -- See `?ggplot2::ggplot2`     
+- Let's check out [**The R Graph Gallery**](http://www.r-graph-gallery.com/)
+
+
+# Base R visualization
+
+ - Simplest plotting in R   
+ - Not very pretty
+ - Difficult to customize   
+ - Not so bad if you just want to use it for quick data exploration
+
+**Basic plot syntax:**   
+
+`plot(x , y)` `x`: vector for x axis, `y`: vector for y axis    
+
+See `?plot`  
+
+```{r, eval=T, echo=T, fig.align='center'}
+x <- 1:10 
+y <- 1:10
+plot(x, y)
+```
+
+
+## Base R visualization: Scatterplot  with `iris`
+
+```{r, fig.align='center'}
+plot(iris$Sepal.Width, iris$Sepal.Length)
+```
+
+## Base R visualization: Histogram with `iris`
+
+```{r, fig.align='center'}
+hist(iris$Sepal.Width)
+```
+
+## Base R visualization: Using `par()` to plot multiple plots
+
+```{r, fig.align='center', out.width='90%', fig.width=9}
+par(mfrow=c(1,2))
+plot(iris$Sepal.Width, iris$Sepal.Length)
+hist(iris$Sepal.Width)
+```
+
+  
+# `plot()` vs `ggplot()`  
+
+> - A picture is worth a thousand words -- when the picture is good
+
+```{r, echo=F, fig.align='default', fig.height=6, fig.show='hold', out.width = '50%', message=F}
+plot(iris$Sepal.Width, iris$Sepal.Length)
+#dotplot(iris$Sepal.Width, iris$Sepal.Length)
+qplot(Sepal.Width, Sepal.Length, data = iris, color = Species)
+```
+
+## Add layers to `ggplot()`
+
+```{r, echo=F,fig.align='default', fig.height=6, fig.show='hold', out.width = '50%', message=F}
+qplot(Sepal.Width, Sepal.Length, data = iris, color = Species)
+qplot(Sepal.Width, Sepal.Length, data = iris, color = Species, shape=Species, geom=c("point", "smooth"), main="ggplot")
+```
+
+## And make it interactive with `ggplotly()`
+
+```{r, echo=F, message=F, fig.height=8, fig.width=10}
+qiris <- qplot(Sepal.Width, Sepal.Length, data = iris, color = Species, shape=Species, geom=c("point", "smooth"), main="ggplot")
+ggplotly(qiris)
+```
+
+# ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics
+
+> - A system for 'declaratively' creating graphics, based on "The Grammar of Graphics". 
+> - You provide the data, tell `ggplot2` how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
+> - Infinite options for the ultimate customization
+> - It is part of the [tidyverse](http://tidyverse.org/), a collection of R packages that share common philosophies and are designed to work together.
+
+## Installation
+
+```{r, eval=F}
+# The easiest way to get ggplot2 is to install the whole tidyverse:
+install.packages("tidyverse")
+
+# Alternatively, install just ggplot2:
+install.packages("ggplot2")
+
+# Don't forget to load tidyverse to your environment
+library(tidyverse)
+
+# Or just ggplot2
+library(ggplot2)
+```
+
+## Usage
+   
+1. Start with `ggplot()`, 
+    - supply a dataset   
+    - and aesthetic mapping using `aes()`. 
+    
+2. You can then add on layers such as: 
+    - Geom (geometric object) with various `geom_` functions.
+    - Scales with various `scale_` or `labs()` and `lims()` functions.
+    - Faceting specifications with `facet_` functions   
+    - Coordinate systems with `coord_` functions   
+
+# Building a ggplot from scratch with `iris`   
+
+## Step 0: Let's remember the `iris` data 
+```{r}
+head(iris, 3)
+summary(iris)
+```
+
+
+## Step 1. Define data and aesthetics woth `aes()`
+
+```{r}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p
+```
+
+## Step 2. Define plot type with `geom_`
+
+```{r}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point()
+```
+
+## Step 3. Assign more aesthetics
+
+### Step 3.1 Add `color`
+
+```{r}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point(aes(color=Species))
+```
+
+
+### Step 3.2 Add `color` + `size`
+
+```{r}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point(aes(color=Species, size=Petal.Length))
+```
+
+### Step 3.3  Add `color` + `size` + `alpha` (transparency)
+
+```{r}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point(aes(color=Species, size=Petal.Length, alpha=Petal.Width))
+```
+
+### Step 3.4  Add `color` + `size` + `alpha` + `shape`
+
+```{r}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point(aes(color=Species, size=Petal.Length, alpha=Petal.Width, shape=Species))
+```
+
+## Step 4. Customize legend
+
+```{r}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point(aes(color=Species, size=Petal.Length, alpha=Petal.Width, shape=Species)) +
+    guides( color=guide_legend(ncol = 3, byrow = TRUE), 
+            size=guide_legend(ncol = 3, byrow = TRUE), 
+            alpha=guide_legend(ncol = 3, byrow = TRUE))
+```
+
+## Step 5: Assign more `geom`: `point` + `smooth` 
+
+```{r, eval=F}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point(aes(color=Species, size=Petal.Length, alpha=Petal.Width)) + 
+    geom_smooth()
+```
+
+What will this give me?
+
+
+```{r, eval=T, echo=F}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point(aes(color=Species, size=Petal.Length, alpha=Petal.Width)) + 
+    geom_smooth()
+```
+
+Ooops! What happened??  
+
+- Smooth line was for the entire data and **not for each of the Iris species.** 
+- Why?
+
+### Step 5.1: Assign more `geom`: `point` + `smooth`
+
+```{r, eval=T}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length, color=Species))
+p + geom_point(aes(size=Petal.Length, alpha=Petal.Width)) + 
+    geom_smooth()
+```
+
+Why did this work now?   
+Can you see the difference?
+
+### Step 5.2: Assign more `geom`: `point` + `smooth`
+
+```{r,eval=T, fig.align='center'}
+p <- ggplot(data=iris, aes(x=Sepal.Width, y=Sepal.Length))
+p + geom_point(aes(size=Petal.Length, alpha=Petal.Width)) + geom_smooth(aes(color=Species))
+```
+
+What about this?
+What's happening here?
+
+Now the color is only defined in the `geom_smooth` and not for `geom_point`
+
+## Step 6: Facetting
+
+### Step 6.0: Create a toy dataset
+
+Let's generate a hypothetical `iris` with some added ecosystem type and precipitation data.
+
+- 3 types of ecosystem: Forest, Riparian, Urban
+- 2 types of precipitation: Heavy, Mild
+
+Here I am using the `sample()` function which allows me to randomly pick variables from a vector.   
+I assign the 150 variables I want to pick with `size = 150` and `replace=TRUE` allows me to pich these variables multiple times.   
+Then I assign these to my new dataset `iris2` with column names `Ecosystem` and `Precipitation`
+
+```{r}
+ecosys <- sample(c("Forest", "Riparian", "Urban"), size = 150, replace = T)
+precp <- sample(c("Heavy", "Mild"), size = 150, replace = T)
+
+iris2 <- cbind(iris, Ecosystem=ecosys, Precipitation=precp)
+head(iris2)
+```
+
+
+### Step 6.1: Facet `iris2`
+
+Now, I would like to see how my previous graph changes for the different types of ecosystem and precipitation.    
+
+This was the graph :    
+
+- I am not using `geom_smooth` for now because I do not have enough data points for model prediction.    
+- Also I will remove the `alpha` aesthetic to make it easier for us to see.
+
+```{r}
+p2 <- ggplot(data=iris2, aes(x=Sepal.Width, y=Sepal.Length, color=Species))
+p2 <- p2 + geom_point(aes(size=Petal.Length)) # + geom_smooth() 
+p2
+```
+
+**Now I add facets!**
+
+```{r}
+p2 + facet_grid(Ecosystem ~ Precipitation) 
+```
+
+**I can customize the facets very easily!**
+
+```{r}
+p2 + facet_grid( . ~ Precipitation) 
+```
+
+```{r}
+p2 + facet_grid(Ecosystem ~ .) 
+```
+
+```{r}
+p2 + facet_grid(Precipitation ~ .) 
+```
+
+You get the idea here right?
+
+### Step 6.2: Facet `wages`
+
+You can use `facet_wrap` if you want to facet by just 1 variable but you want to organize them nicely.
+
+First, let's read the `wages` data in R.    
+
+```{r}
+wages <- read.csv("./wages.csv", 
+                   header = T, 
+                   stringsAsFactors = T) 
+head(wages, 3)
+```
+
+Let's create age categories with `cut()` function. I am turning the continous `age` varialbe into a categorical variable with `cut()` function. I am also setting categorical intervals increasing by 10  years with the `breaks = seq(20, 100, by=10)` argument. Then I assign this new variable to a new column called `age_cat`.   
+
+```{r}
+wages <- wages %>% mutate(age_cat = cut(age, breaks = seq(20, 100, by=10)) )
+head(wages, 4)
+```
+
+Let's plot it
+
+```{r}
+pw <- ggplot(wages, aes(x=height, y=earn)) +
+      geom_point(aes(size=ed), alpha=0.5)
+pw
+pw + facet_wrap(~age_cat)
+```
+
+Or you can specify the rows and columns for the faceting
+
+```{r}
+pw + facet_wrap(~age_cat, ncol=5)
+```
+
+
+# **Your turn** (5 mins)
+
+Plot the `wages.csv` data like the following
+
+```{r, echo=F,fig.width=10, out.width='100%'}
+pw <- ggplot(wages, aes(x=age, y=earn, color=sex))
+pw + geom_point(aes(size=ed), alpha=0.5) + 
+     geom_smooth() +
+     facet_wrap(~ race)
+```
